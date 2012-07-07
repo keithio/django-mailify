@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Django-mailify by keithio</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Django-mailify</h1>
+          <h2>Enhance the builtin Django mail functionality to include task queueing</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/keithio/django-mailify/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/keithio/django-mailify/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/keithio/django-mailify" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1></h1>
+
+<h1>django-mailify</h1>
+
+<p>Enhance the builtin Django mail functionality to include task queueing or deferment.</p>
+
+<h2>Getting Started</h2>
+
+<ol>
+<li>
+<p>Requirements::</p>
+
+<p>Django&gt;=1.4
+South&gt;=0.7.5
+jsonfield&gt;=0.9</p>
+</li>
+<li>
+<p>Install django-mailify::</p>
+
+<p>pip install -e git://github.com/keithio/django-mailify.git#egg=mailify</p>
+</li>
+<li>
+<p>Add <code>mailify</code> to your <code>INSTALLED_APPS</code>::</p>
+
+<p>INSTALLED_APPS += (
+    'mailify',
+)</p>
+</li>
+</ol><h2>Configuration</h2>
+
+<p>All of the following are optional, but highly recommended.</p>
+
+<p><code>DEFAULT_FROM_EMAIL</code>: your default sender e-mail address, can use with or without name::</p>
+
+<pre><code>DEFAULT_FROM_EMAIL = 'Admin &lt;admin@example.com&gt;'
+</code></pre>
+
+<p><code>MAILIFY_DELETE_AFTER_SEND</code>: whether or not to delete the message from the database after successful send (default=True)::</p>
+
+<pre><code>MAILIFY_DELETE_AFTER_SEND`` = True
+</code></pre>
+
+<p><code>MAILIFY_DEFAULT_DESCRIPTION</code>: a description of the e-mail message, for internal use only (default='Message')::</p>
+
+<pre><code>MAILIFY_DEFAULT_DESCRIPTION = 'MySite Correspondence'
+</code></pre>
+
+<p><code>MAILIFY_DEFAULT_SUBJECT_TEMPLATE</code>: the subject template to be used by default (default='mailify/subject.txt')::</p>
+
+<pre><code>MAILIFY_DEFAULT_SUBJECT_TEMPLATE = 'mysite/templates/messages/subject.txt'
+</code></pre>
+
+<p><code>MAILIFY_DEFAULT_TEXT_TEMPLATE</code>: the plaintext message template to be used by default (default='mailify/message.txt')::</p>
+
+<pre><code>MAILIFY_DEFAULT_TEXT_TEMPLATE = 'mysite/templates/messages/message.txt'
+</code></pre>
+
+<p><code>MAILIFY_DEFAULT_HTML_TEMPLATE</code>: the HTML message template to be used by default (default='mailify/message.html')::</p>
+
+<pre><code>MAILIFY_DEFAULT_HTML_TEMPLATE = 'mysite/templates/messages/message.html'
+</code></pre>
+
+<p><code>MAILIFY_DEFAULT_WHEN</code>: when to send the message, 0 - now, 1 - delay with celery, 2 - defer (default=0)::</p>
+
+<pre><code>MAILIFY_DEFAULT_WHEN = 0  # Send the message now
+MAILIFY_DEFAULT_WHEN = 1  # Utilize task queueing from Celery
+MAILIFY_DEFAULT_WHEN = 2  # Defer until later, process queue with send_deferred management command
+</code></pre>
+
+<p><code>MAILIFY_USE_CELERY</code>: whether or not to use Celery when creating a message, for use with <code>message</code> signal (default=False)::</p>
+
+<pre><code>MAILIFY_USE_CELERY = True
+</code></pre>
+
+<h2>Using Celery</h2>
+
+<p>Ensure that you have Celery installed <code>django-celery</code> and have added <code>'kombu.transport.django'</code> and <code>djcelery</code> to your <code>INSTALLED_APPS</code><code>before</code><code>mailify</code>`.</p>
+
+<p>Then, simply use the correct triggers and settings variables to ensure proper assignment to your worker(s).</p>
+
+<h2>Usage</h2>
+
+<ol>
+<li>
+<p>Using signals::</p>
+
+<p>from mailify.signals import message</p>
+
+<p>message.send([parameters])</p>
+
+<p>"""
+Parameters::</p>
+
+<pre><code>desc: string, description of the message, default='Message'
+frm: string, from address, default=settings.DEFAULT_FROM_EMAIL
+recipients: list, recipient e-mail addresses, required
+celery: boolean, whether to use celery to initialize the message, default=False
+when: 0 -- send message now (default)
+      1 -- delay and process with celery
+      2 -- defer and send later with management command
+keep: boolean, whether to keep the message in the database after sending, default=False
+subject_context: dict, key-value pairs for completing subject template
+message_context: dict, key-value pairs for completing message templates
+subject_template: string, template for subject
+text_template: string, template for text message
+html_template: string, template for HTML message
+</code></pre>
+
+<p>"""</p>
+</li>
+<li>
+<p>Using model instantiation::</p>
+
+<p>from mailify.models import MailifyMessage</p>
+
+<p>new_message = MailifyMessage(...)</p>
+
+<h1>Check models.py for reference.</h1>
+</li>
+</ol><h2>Future Work</h2>
+
+<ul>
+<li>Integrate support for django-sendgrid_</li>
+</ul><p>.. _django-sendgrid: <a href="https://github.com/RyanBalfanz/django-sendgrid">https://github.com/RyanBalfanz/django-sendgrid</a></p>
+        </section>
+
+        <footer>
+          Django-mailify is maintained by <a href="https://github.com/keithio">keithio</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
